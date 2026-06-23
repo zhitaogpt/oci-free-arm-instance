@@ -66,23 +66,17 @@ jobs:
 
           if echo "$OCI_OUTPUT" | grep -q '"lifecycle-state": "PROVISIONING"'; then
             echo "Success! VM is PROVISIONING."
+            echo "result=success" >> $GITHUB_OUTPUT
             exit 0
           else
             echo "Failed: $OCI_OUTPUT"
+            echo "result=failure" >> $GITHUB_OUTPUT
             exit 1
           fi
 
-      - name: Send Discord Notification
-        if: always()
-        uses: sarisia/actions-status-discord@v1.15.4
-        with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          title: "OCI ARM VM: ${{ steps.create_vm.outcome }}"
-          status: ${{ steps.create_vm.outcome }}
-          color: ${{ steps.create_vm.outcome == 'success' && '0x28a745' || '0xdc3545' }}
-          description: |
-            Attempt to create A1.Flex ARM VM in Tokyo.
-            **Status:** `${{ steps.create_vm.outcome }}`
-            ```json
-            ${{ steps.create_vm.outputs.log_data }}
-            ```
+      - name: Send DingTalk Notification (success only)
+        if: steps.create_vm.outcome == 'success'
+        run: |
+          curl -s -H 'Content-Type: application/json' \
+            -d '{"msgtype":"text","text":{"content":"-info: OCI ARM VM 抢到了！状态: PROVISIONING\n请立即去 Actions 页面禁用 workflow！\nhttps://github.com/zhitaogpt/oci-free-arm-instance/actions"}}' \
+            "${{ secrets.DINGTALK_WEBHOOK }}"
