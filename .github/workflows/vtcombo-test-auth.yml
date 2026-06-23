@@ -1,0 +1,24 @@
+name: VTcombo Auth Test
+on:
+  workflow_dispatch:
+
+jobs:
+  test-grvt-auth:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test GRVT Auth from GitHub Actions
+        run: |
+          RESPONSE=$(curl -s -X POST https://edge.testnet.grvt.io/auth/api_key/login \
+            -H "Content-Type: application/json" \
+            -d "{\"api_key\": \"${{ secrets.GRVT_API_KEY }}\", \"secret\": \"${{ secrets.GRVT_API_SECRET }}\"}")
+          echo "Response: $RESPONSE"
+          if echo "$RESPONSE" | grep -q "Access from this location"; then
+            echo "BLOCKED: GRVT rejected this IP"
+            exit 1
+          elif echo "$RESPONSE" | grep -q "token"; then
+            echo "SUCCESS: Auth passed!"
+            exit 0
+          else
+            echo "UNKNOWN response"
+            exit 1
+          fi
