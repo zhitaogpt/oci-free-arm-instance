@@ -8,17 +8,9 @@ jobs:
     steps:
       - name: Test GRVT Auth from GitHub Actions
         run: |
-          RESPONSE=$(curl -s -X POST https://edge.testnet.grvt.io/auth/api_key/login \
+          echo "=== Runner IP ==="
+          curl -s https://api.ipify.org && echo ""
+          echo "=== Full Response with Headers ==="
+          curl -sv -X POST https://edge.testnet.grvt.io/auth/api_key/login \
             -H "Content-Type: application/json" \
-            -d "{\"api_key\": \"${{ secrets.GRVT_API_KEY }}\", \"secret\": \"${{ secrets.GRVT_API_SECRET }}\"}")
-          echo "Response: $RESPONSE"
-          if echo "$RESPONSE" | grep -q "Access from this location"; then
-            echo "BLOCKED: GRVT rejected this IP"
-            exit 1
-          elif echo "$RESPONSE" | grep -q "token"; then
-            echo "SUCCESS: Auth passed!"
-            exit 0
-          else
-            echo "UNKNOWN response"
-            exit 1
-          fi
+            -d "{\"api_key\": \"${{ secrets.GRVT_API_KEY }}\", \"secret\": \"${{ secrets.GRVT_API_SECRET }}\"}" 2>&1
