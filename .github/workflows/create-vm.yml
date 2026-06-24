@@ -58,7 +58,7 @@ jobs:
             --ssh-authorized-keys-file "/home/runner/my_ssh_key.pub" \
             --assign-public-ip true \
             --display-name "arm-free-tokyo" \
-            --boot-volume-size-in-gbs 150 2>&1 || true)
+            --boot-volume-size-in-gbs 100 2>&1 || true)
 
           echo "log_data<<EOF" >> $GITHUB_OUTPUT
           echo "$OCI_OUTPUT" >> $GITHUB_OUTPUT
